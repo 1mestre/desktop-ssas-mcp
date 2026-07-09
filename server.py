@@ -1,3 +1,25 @@
+import os
+import sys
+
+# Sanitize environment variables before any other imports.
+# This prevents host environments (like AI agent runners, IDEs, or global shells)
+# from injecting contaminating PYTHONPATH or PYTHONHOME variables, which can lead 
+# to ModuleNotFoundErrors (e.g. with pywintypes/pythonnet).
+for key in ['PYTHONPATH', 'PYTHONHOME']:
+    os.environ.pop(key, None)
+
+# Automatically resolve and prioritize local virtual environment packages if present.
+base_dir = os.path.dirname(os.path.abspath(__file__))
+venv_site_packages = os.path.join(base_dir, ".venv", "Lib", "site-packages")
+if os.path.exists(venv_site_packages) and venv_site_packages not in sys.path:
+    sys.path.insert(0, venv_site_packages)
+
+if base_dir not in sys.path:
+    sys.path.insert(0, base_dir)
+
+# ---------------------------------------------------------
+# Standard MCP Imports
+# ---------------------------------------------------------
 from mcp.server.fastmcp import FastMCP
 from pbi_connector import get_active_pbi_instances, PowerBIConnector
 
@@ -16,7 +38,7 @@ def list_instances() -> list[dict]:
 
 @mcp.tool()
 def get_schema(port: str) -> list[dict]:
-    """Retrieves the semantic data model schema (tables and columns) from the specified Power BI Desktop port.
+    """Retrieves the data model schema (tables and columns) from the specified Power BI Desktop port.
 
     Args:
         port (str): Local port of the active Power BI Desktop instance.

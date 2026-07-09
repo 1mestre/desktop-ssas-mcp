@@ -12,6 +12,7 @@ Through this server, an LLM can discover open reports, inspect table and column 
 - **Robust Connection via ADOMD.NET:** Instead of relying on local system OLE DB providers (`MSOLAP`) which often suffer from architecture mismatches (32-bit vs. 64-bit) or missing drivers, this server leverages `pythonnet` to directly load the native `Microsoft.PowerBI.AdomdClient.dll` shipped with Power BI Desktop.
 - **Schema Inspection:** Exposes database schema, detailing tables, columns, data types, and visibility states.
 - **JSON-Safe DAX Execution:** Executes complex DAX expressions (e.g., `EVALUATE SUMMARIZECOLUMNS(...)`) and parses raw .NET data types (decimals, dates, nulls) into clean, JSON-serializable structures.
+- **Self-Sanitizing Environment:** Automatically isolates its environment from host platforms (such as AI agent runners or global shells) by clearing contaminated `PYTHONPATH`/`PYTHONHOME` environment variables and prioritizing the local `.venv` directory to prevent runtime dependency import issues (e.g., `pywintypes` or `pythonnet` collision).
 
 ---
 
