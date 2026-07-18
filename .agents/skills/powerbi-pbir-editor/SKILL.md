@@ -492,6 +492,76 @@ Manually creating `visual.json` files — even with correct structure, projectio
 ### 10.15 Slicer Values Role Required
 pbir-cli validation warns: `slicer missing 'Values' role -- visual will not render without it`. This applies to pbir-cli created slicers. However, PBID-internal slicers (created via UI) use `Group` without issues. The `Values` role is only needed when creating via pbir-cli.
 
+### 10.16 Root-Level `visualContainerObjects` is INVALID (CRITICAL)
+In PBIR 2.10.0, `visualContainerObjects` must be INSIDE `visual`, not at the root level of `visual.json`. PBID reports this error:
+```
+Se ha incluido una propiedad 'visualContainerObjects' adicional en la propiedad root de visuals/xxx/visual.json
+```
+
+**Correct structure:**
+```json
+{
+  "visual": {
+    "visualType": "card",
+    "visualContainerObjects": { "title": [...], "background": [...] }
+  },
+  "position": { ... }
+}
+```
+
+**WRONG (causes PBID error):**
+```json
+{
+  "visual": { ... },
+  "visualContainerObjects": { "title": [...] }
+}
+```
+
+### 10.17 Use Python for JSON Manipulation (CRITICAL)
+PowerShell `ConvertFrom-Json` / `ConvertTo-Json` serializes nested hashtables as `"System.Collections.Hashtable"` strings, breaking PBIR's `expr.Literal.Value` structure. **Always use Python** for visual.json manipulation:
+
+```python
+import json
+with open(path, "r", encoding="utf-8") as f:
+    data = json.load(f)
+# modify data...
+with open(path, "w", encoding="utf-8") as f:
+    json.dump(data, f, indent=2, ensure_ascii=False)
+```
+
+### 10.18 Dark Navy Theme Color Reference
+For dark navy dashboards, use these colors consistently:
+```python
+BG_DARK = "#1E1E32"       # Page background
+CARD_BG = "#252540"       # Card/visual container background
+BORDER_BG = "#3A3A5C"     # Border color
+TEXT_WHITE = "#FFFFFF"     # White text (KPI values)
+TEXT_LIGHT = "#F0F0F0"    # Off-white text (titles, labels)
+ACCENT_TEAL = "#00B4D8"   # Teal accent for data series
+```
+
+**Apply via `visual.visualContainerObjects`:**
+```json
+"visualContainerObjects": {
+  "background": [{ "properties": { "show": {"expr":{"Literal":{"Value":"true"}}}, "color": {"solid":{"color":{"expr":{"Literal":{"Value":"'#252540'"}}}}} }}],
+  "border": [{ "properties": { "show": {"expr":{"Literal":{"Value":"true"}}}, "color": {"solid":{"color":{"expr":{"Literal":{"Value":"'#3A3A5C'"}}}}} }}]
+}
+```
+
+### 10.19 pbir-cli TopN Filter Command
+```bash
+pbir add filter amazon_clean product_name \
+  -v "Report/Page/Visual.Visual" \
+  --type TopN --direction Top \
+  --by-table amazon_clean --by-field "Total Revenue" \
+  --n 5
+```
+
+### 10.20 PBID Errors for Invalid Root Properties
+PBID reports these errors when root-level properties exist that shouldn't:
+- `Se ha incluido una propiedad 'visualContainerObjects' adicional en la propiedad root` → Remove root-level `visualContainerObjects`
+- `Se ha incluido una propiedad 'displayArea' adicional en la propiedad root de page.json` → Remove root-level `displayArea` from page.json
+
 ---
 ## 11. Premium Theme Catalogue (Modos Claro y Oscuro)
 These pre-configured themes are designed to enforce perfect readability and contrast standards while projecting distinct, premium vibes:
