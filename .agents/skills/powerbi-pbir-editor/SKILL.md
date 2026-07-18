@@ -358,5 +358,31 @@ To ensure reports look clean, high-contrast, professional, and visually unified 
 ### 3. Data Accentuation vs Container Neutrality:
 - Use colors purposefully for **data accentuation** (e.g. KPI callout value numbers, chart bars, line series, donut slices), while maintaining clean, neutral, high-contrast framing for containers and titles.
 
+---
+
+## 10. Premium Theme Catalogue (Modos Claro y Oscuro)
+These pre-configured themes are designed to enforce perfect readability and contrast standards while projecting distinct, premium vibes:
+
+### 1. 🌸 **"Magenta Blossom" (Modo Claro)**
+- **Palette**: `#92003A` (Vino oscuro), `#F62477` (Rosa brillante), `#FFADEE` (Rosa pastel), `#FFE185` (Arena suave).
+- **Application**: Pure white canvas with soft sand card backgrounds. Vino/Magenta for high-contrast titles and text.
+
+### 2. 🌌 **"Slate & Terracotta" (Modo Oscuro)**
+- **Palette**: `#0F3040` (Slate Azul Oscuro), `#464858` (Gris Asfalto), `#A56F63` (Terracota), `#D99B7F` (Terracota claro).
+- **Application**: Deep slate blue canvas with dark slate card surfaces. Light terracotta for text and callouts.
+
+### 3. 🌿 **"Ecotone Spring" (Modo Claro)**
+- **Palette**: `#769826` (Oliva), `#A1CB35` (Verde primavera), `#FFDE4E` (Amarillo), `#FF9D4D` (Naranja).
+- **Application**: Clean light grey canvas, white containers, olive text, vibrant green/yellow/orange data series.
+
+### 4. ☕ **"Roasted Espresso" (Modo Oscuro)**
+- **Palette**: `#60241E` (Marrón Espresso), `#95271D` (Marrón rojizo), `#B34A44` (Marrón), `#E77B49` (Tono arcilla claro).
+- **Application**: Dark espresso canvas, reddish-brown containers, light clay text for high contrast.
+
+### 5. ❄️ **"Vintage Nordic" (Modo Claro)**
+- **Palette**: `#0B1849` (Marino), `#124D1C` (Pino), `#E4B028` (Oro viejo), `#EBEDE3` (Gris pálido).
+- **Application**: Pale nordic grey canvas, white containers, deep navy text, pine green and gold accents.
+
+
 
 
