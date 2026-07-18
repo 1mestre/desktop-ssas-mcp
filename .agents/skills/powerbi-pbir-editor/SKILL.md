@@ -412,29 +412,45 @@ $utf8NoBom = New-Object System.Text.UTF8Encoding $false
 [System.IO.File]::WriteAllText($path, $content, $utf8NoBom)
 ```
 
-### 10.2 AVOID `%` IN MEASURE NAMES
+### 10.2 SLICER ORIENTATION VALUES
+Slicer items require explicit `orientation` to show items. Power BI rewrites invalid or missing orientation to `"properties": {}` (no items render):
+- `"0"` = vertical list (multi-row)
+- `"1"` = horizontal (items arranged left-to-right in a single bar - best for full-width filters)
+- `"2"` = responsive dropdown (auto-collapse)
+**Fix:** Set `orientation: "1"` for filter bars:
+```json
+"items": [{ "properties": { "orientation": { "expr": { "Literal": { "Value": "1" } } }, "singleSelect": { "expr": { "Literal": { "Value": "false" } } } } }]
+```
+
+### 10.3 POWER BI REWRITES VISUAL.JSON ON OPEN (CRITICAL WORKFLOW)
+Power BI Desktop automatically upgrades visual.json schema from `1.0.0` to `2.10.0` and strips invalid properties on load. If a visual file is NOT rewritten (stays at `1.0.0` schema), it means Power BI FAILED to load it — the JSON has a structural error. **Debug method:** After opening PBID, check which visual files remained at `1.0.0` — those are the broken ones.
+
+### 10.4 DONUT/PIE CHARTS: START WITH MINIMAL OBJECTS
+Donut and pie charts with explicit `objects.legend` and `objects.labels` can fail to render in schema 1.0.0. **Fix:** Start with `"objects": {}` and schema `2.10.0`. Add legend/labels styling only after the chart renders with data.
+
+### 10.6 AVOID `%` IN MEASURE NAMES
 The `%` character in DAX measure names (even inside TMDL single quotes) causes grouped charts (columnChart, barChart, etc.) to render as **empty rectangles**. Power BI's internal engine interprets the `%` as a modulus operator or format specifier rather than a literal character.
 **Fix:** Use `Pct` instead of `%` in all measure names:
 - `measure 'Avg Discount %'` -> `measure 'Avg Discount Pct'`
 
-### 10.3 NO `dataPoint` ON TREEMAP
+### 10.7 NO `dataPoint` ON TREEMAP
 Treemaps use the theme's `dataColors` palette across all categories automatically. Adding `objects.dataPoint` with a single `ThemeDataColor` overrides all rectangles to one color. Using `ColorId: 0` sets them to the **background color** (`#F7F5F2`), making them invisible.
 **Fix:** Do NOT include `dataPoint` in treemap objects. Use `"objects": {}`.
 
-### 10.4 KPI Card Minimum Setup (Zero-Crop)
+### 10.8 KPI Card Minimum Setup (Zero-Crop)
 Every KPI card MUST include:
 - **`objects.categoryLabel`** with `show: false`, `fontSize: 1`, `transparency: 100`
 - **`objects.labels`** with `color: #FFFFFF`, `fontSize: 28`
 - **`visualContainerObjects.background`** with solid dark color, `show: true`
 - **`visualContainerObjects.title`** with `show: true`, `fontColor: #F8FAFC`
 
-### 10.5 All Charts Need Explicit Container Background
+### 10.9 All Charts Need Explicit Container Background
 Charts render transparent on the page unless `visualContainerObjects` includes a `background` and `border` block with explicit `#FFFFFF` background.
 
-### 10.6 Canvas Height Budget (1280x1000)
+### 10.10 Canvas Height Budget (1280x1000)
 Use **1280x1000** when the layout includes: 1 slicer row (110px) + 4 KPI cards (110px) + 2 chart rows (290px each) + bottom row (110px) = 1000px with 15px gaps.
 
-### 10.7 `queryRef` / `nativeQueryRef` with Spaces
+### 10.11 `queryRef` / `nativeQueryRef` with Spaces
 Measures with spaces use dot-notation without brackets:
 ```json
 "queryRef": "amazon_clean.Total Products",
