@@ -348,8 +348,16 @@ To ensure reports look clean, high-contrast, professional, and visually unified 
 
 ### 1. WCAG 2.1 AA Contrast Ratio Standard:
 - **Contrast Formula:** $CR = \frac{L_1 + 0.05}{L_2 + 0.05} \ge 4.5:1$ for body/title text and $\ge 3.0:1$ for large text/KPI callout numbers.
-- **NEVER** place dark text (e.g. black `#111827` or dark purple) on dark backgrounds (e.g. purple, dark navy, or black).
-- **NEVER** place white text (`#FFFFFF`) on white or light grey backgrounds.
+- **Power BI ThemeDataColor Mapping (CRITICAL):**
+  - **`ColorId: 0`**: Maps to the active theme's **Background** color (White `#FFFFFF` in light themes, Slate `#0F172A` in dark themes).
+  - **`ColorId: 1`**: Maps to the active theme's **Foreground** text color (Dark Slate `#111827` / Dark Vino `#92003A` in light themes, Ice White `#F8FAFC` in dark themes).
+  - **`ColorId: 2, 3, etc.`**: Map to Theme Data Colors (Data Colors array).
+- **Contrast Rules (GUARANTEED):**
+  - Card/Container backgrounds must always use **`ColorId: 0`** (which automatically matches the canvas theme).
+  - Card/Container titles must always use **`ColorId: 1`** (which dynamically switches to high-contrast dark text in light mode and white text in dark mode).
+  - Callout numbers must use **`ColorId: 1`, `2`, or `3`** (never `0` on light themes, or any color that has a low contrast ratio against the background).
+  - **NEVER** place white text (`ColorId: 0` on light themes) on light backgrounds.
+- **Verification Rule:** If changing themes, check that no elements map to `ColorId: 0` for text in light mode.
 
 ### 2. Container Homogeneity Principle:
 - **Unified Visual Containers:** All visual containers on a dashboard page (KPI Cards, Charts, Tables, Slicers) MUST share a single, homogeneous background container specification (e.g. Pure White `#FFFFFF` background with `0%` transparency and subtle `1px` border `#E5E7EB`).
