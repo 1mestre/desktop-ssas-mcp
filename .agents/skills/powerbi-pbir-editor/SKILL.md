@@ -168,3 +168,92 @@ To set visual titles programmatically in `visualContainer` format:
   ```
 * **Mandatory Projection Keys:** Every field projection inside the `"projections": [...]` array must contain `"queryRef"` and `"nativeQueryRef"` as string values. Failing to include these strings will cause a report load crash.
 * **Page Folder Names:** Page folders under `pages/` must be named using 20-character lowercase hexadecimal strings or GUIDs. Do not use descriptive names.
+
+---
+
+## 7. Advanced Visual Customization & Styling (PBIR)
+When styling visuals programmatically to ensure a custom, professional color palette:
+
+### KPI Cards (Classic Card Visuals)
+To style cards with solid backgrounds and white callout text:
+- **Hide Category Label:** Target the `"categoryLabel"` object (not `"labels"`):
+  ```json
+  "categoryLabel": [
+    {
+      "properties": {
+        "show": { "expr": { "Literal": { "Value": "false" } } }
+      }
+    }
+  ]
+  ```
+- **White Callout Value:** Target the `"labels"` object (not `"dataLabels"`):
+  ```json
+  "labels": [
+    {
+      "properties": {
+        "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#FFFFFF'" } } } } },
+        "fontSize": { "expr": { "Literal": { "Value": "24" } } }
+      }
+    }
+  ]
+  ```
+- **White Title & Custom Background:** Set in `visualContainerObjects`:
+  ```json
+  "visualContainerObjects": {
+    "background": [
+      {
+        "properties": {
+          "show": { "expr": { "Literal": { "Value": "true" } } },
+          "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#131921'" } } } } }
+        }
+      }
+    ],
+    "title": [
+      {
+        "properties": {
+          "show": { "expr": { "Literal": { "Value": "true" } } },
+          "text": { "expr": { "Literal": { "Value": "'Total Orders'" } } },
+          "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#FFFFFF'" } } } } }
+        }
+      }
+    ]
+  }
+  ```
+
+### Donut Chart Slices Explicit Coloring
+To override default theme colors for individual slices (e.g., coloring specific values like 'Amazon' or 'Merchant'), use `"dataPoint"` with a series selector:
+```json
+"objects": {
+  "dataPoint": [
+    {
+      "properties": {
+        "fill": { "solid": { "color": { "expr": { "Literal": { "Value": "'#131921'" } } } } }
+      },
+      "selector": {
+        "metadata": "Fact_Sales.Fulfilment",
+        "data": [
+          {
+            "queryRef": "Fact_Sales.Fulfilment",
+            "value": "'Amazon'"
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+### Column & Line Chart Series Coloring
+To set the color of columns or lines explicitly:
+```json
+"objects": {
+  "dataPoint": [
+    {
+      "properties": {
+        "fill": { "solid": { "color": { "expr": { "Literal": { "Value": "'#007185'" } } } } }
+      }
+    }
+  ]
+}
+```
+
