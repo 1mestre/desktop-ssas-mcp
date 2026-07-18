@@ -89,9 +89,9 @@ To draw immediate executive focus to the most critical "North Star" metrics (e.g
 Embed clean unicode symbols directly in visual container titles to make them instantly recognizable and visual (e.g., `"⭐ Avg Rating"`, `"💰 Total Revenue"`, `"📂 Filter by Category"`).
 
 ### 4. Distinct Multi-Color Bar Series & Rounded Container Corners
-* **Rounded Corners (Bordes Redondeados):** NEVER use sharp 90-degree square container borders. ALWAYS set `"radius": 8` inside `"visualContainerObjects.border.properties"` for all KPI Cards, Charts, and Slicers to make the layout soft, modern, and inviting.
-  * **CRITICAL SCHEMA RULE:** The ONLY valid property name for border rounding in PBIR is `"radius"`. NEVER use `"borderRadius"` — including `"borderRadius"` causes an immediate schema validation error: *"Se ha incluido una propiedad 'borderRadius' adicional en la propiedad /visual/visualContainerObjects/border/0/properties"*.
-* **Multi-Colored Bars (Barras Multicolor):** NEVER render all bars in a `barChart` or `columnChart` using a single flat monochrome accent color. ALWAYS let the theme's `dataColors` palette paint category bars with varied, harmonious theme colors (`#FF9E2C`, `#3B82F6`, `#10B981`, `#F59E0B`, etc.), or map specific category colors dynamically. DO NOT insert single-color `"dataPoint"` overrides into bar charts.
+* **Rounded Corners (Bordes Redondeados):** NEVER use sharp 90-degree square container borders. ALWAYS set `"radius": { "expr": { "Literal": { "Value": "15D" } } }` inside `"visualContainerObjects.border.properties"` for all KPI Cards, Charts, and Slicers.
+  * **CRITICAL LITERAL FORMAT:** The PBIR 2.10.0 schema requires the numeric double literal suffix `D` (e.g., `"15D"`). Using raw string `"15"` is silently ignored by the Power BI Desktop rendering engine.
+* **Multi-Colored Bars (Barras Multicolor):** NEVER render all bars in a `barChart` or `columnChart` using a single flat monochrome accent color. ALWAYS use explicit `scopeId` Comparison selectors in `objects.dataPoint` to map each category item to a unique color (`#FF9E2C`, `#3B82F6`, `#10B981`, `#F59E0B`, etc.).
 
 ### 5. Font Family & Zero-Friction Typography (e.g. Montserrat)
 To distribute reports without friction (so clients don't encounter missing font warnings or rendering fallbacks):
