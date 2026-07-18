@@ -256,32 +256,56 @@ To override default theme colors for individual slices (e.g., coloring specific 
 }
 ```
 
-### Column & Line Chart Series Coloring
-To set the color of columns or lines explicitly in a single-series visual (without legends):
-- **Column Chart (using `"fill"`):**
+### Column & Line Chart Series Coloring (Theme-Aware Color Binding)
+To ensure visuals pick up the colors defined in your active report theme JSON automatically (and do not hardcode manual formatting overrides), use `"ThemeDataColor"` expressions instead of `"Literal"` hex strings:
+
+- **Column Chart (using `"fill"` and `"ThemeDataColor"`):**
   ```json
   "objects": {
     "dataPoint": [
       {
         "properties": {
-          "fill": { "solid": { "color": { "expr": { "Literal": { "Value": "'#007185'" } } } } }
+          "fill": {
+            "solid": {
+              "color": {
+                "expr": {
+                  "ThemeDataColor": {
+                    "ColorId": 2,
+                    "Percent": 0
+                  }
+                }
+              }
+            }
+          }
         }
       }
     ]
   }
   ```
-- **Line Chart (using `"fillColor"`):** Always use `"fillColor"` rather than `"fill"` to customize standard line chart series colors explicitly in the JSON:
+- **Line Chart (using `"fillColor"` and `"ThemeDataColor"`):**
   ```json
   "objects": {
     "dataPoint": [
       {
         "properties": {
-          "fillColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#FF9900'" } } } } }
+          "fillColor": {
+            "solid": {
+              "color": {
+                "expr": {
+                  "ThemeDataColor": {
+                    "ColorId": 1,
+                    "Percent": 0
+                  }
+                }
+              }
+            }
+          }
         }
       }
     ]
   }
   ```
+  Where `ColorId` is the 0-based index of the color in the report theme's `dataColors` array (e.g., `0` is the first color, `1` is the second, etc.).
 
 ---
 
