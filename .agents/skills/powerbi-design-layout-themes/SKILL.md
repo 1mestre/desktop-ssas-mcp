@@ -88,11 +88,9 @@ To draw immediate executive focus to the most critical "North Star" metrics (e.g
 ### 3. Visual Emojis/Symbols in Titles
 Embed clean unicode symbols directly in visual container titles to make them instantly recognizable and visual (e.g., `"⭐ Avg Rating"`, `"💰 Total Revenue"`, `"📂 Filter by Category"`).
 
-### 4. Distinct Series Colors in Chart Elements
-Do not paint every bar or column chart in the same uniform accent color. Vary the series colors logically:
-* **Revenue/Financial charts:** Use the primary theme highlight (`#D99B7F` / Terracota).
-* **Volume/Quantity charts:** Use information blue (`#3B82F6`).
-* **Performance/Rating charts:** Use success green (`#10B981`).
+### 4. Distinct Multi-Color Bar Series & Rounded Container Corners
+* **Rounded Corners (Bordes Redondeados):** NEVER use sharp 90-degree square container borders. ALWAYS set `"radius": 8` inside `"visualContainerObjects.border"` for all KPI Cards, Charts, and Slicers to make the layout soft, modern, and inviting.
+* **Multi-Colored Bars (Barras Multicolor):** NEVER render all bars in a `barChart` or `columnChart` using a single flat monochrome accent color. ALWAYS let the theme's `dataColors` palette paint category bars with varied, harmonious theme colors (`#FF9E2C`, `#3B82F6`, `#10B981`, `#F59E0B`, etc.), or map specific category colors dynamically. DO NOT insert single-color `"dataPoint"` overrides into bar charts.
 
 ### 5. Font Family & Zero-Friction Typography (e.g. Montserrat)
 To distribute reports without friction (so clients don't encounter missing font warnings or rendering fallbacks):
