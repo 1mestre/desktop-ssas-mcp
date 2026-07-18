@@ -9,10 +9,10 @@ Use this skill when you need to programmatically add or modify visuals in a Powe
 
 ---
 
-## ⚠️ REGLAS DE ORO PARA EVITAR GRÁFICOS VACÍOS EN PBIR 2.0.0+
+## ⚠️ GOLDEN RULES TO AVOID EMPTY VISUALS IN PBIR 2.0.0+
 
-1. **Estructura de Carpetas:** Los visuales deben guardarse en carpetas individuales bajo la subcarpeta `visuals/`. Ejemplo: `pages/{page-guid}/visuals/{visual-guid}/visual.json`. No sueltos en la carpeta de la página.
-2. **Formato JSON Correcto:** No pongas `projections`, `filters` o `query` en la raíz de `visual.json` ni directamente bajo `visual`. Las proyecciones deben ir obligatoriamente en `visual.query.queryState`:
+1. **Folder Structure:** Visuals must be saved in individual folders under the `visuals/` subfolder. Example: `pages/{page-guid}/visuals/{visual-guid}/visual.json`. Do not save them loose in the page folder.
+2. **Correct JSON Format:** Do not put `projections`, `filters`, or `query` on the root of `visual.json` or directly under `visual`. Projections must reside strictly inside `visual.query.queryState`:
    ```json
    "visual": {
      "visualType": "treemap",
@@ -27,9 +27,9 @@ Use this skill when you need to programmatically add or modify visuals in a Powe
      "visualContainerObjects": {}
    }
    ```
-3. **Column vs Measure (CRÍTICO):** Los gráficos agrupados (como `treemap`, `funnel`, `barChart`, `columnChart`, `pieChart`, `donutChart`, etc.) **NO aceptan columnas directas (`"Column"`) en su proyección de valores (`Y` o `Values`)**. Si intentas usar una columna directamente en el eje Y, el gráfico se renderizará como un **rectángulo vacío** en Power BI Desktop.
-   - **Solución:** Primero debes crear una medida DAX (`measure`) en el archivo `.tmdl` correspondiente (usando la herramienta `add_measure_to_tmdl`), por ejemplo: `measure 'Promedio Servicio' = AVERAGE(tabla[servicio])`.
-   - **Referencia:** En el JSON del visual, debes apuntar a esa medida usando la proyección de tipo `"Measure"` (no `"Column"`):
+3. **Column vs Measure (CRITICAL):** Grouped charts (such as `treemap`, `funnel`, `barChart`, `columnChart`, `pieChart`, `donutChart`, `lineChart`, etc.) **DO NOT accept direct columns (`"Column"`) in their values projection (`Y` or `Values`)**. If you attempt to use a column directly in the Y-axis/Values axis, the visual will render as an **empty rectangle** in Power BI Desktop showing the "Select or drag fields" warning.
+   - **Solution:** You must first create a DAX measure (`measure`) in the corresponding `.tmdl` file (using the `add_measure_to_tmdl` tool or modifying it directly), for example: `measure 'Average Service' = AVERAGE(table[service])`.
+   - **Reference:** In the visual JSON, point to that measure using the `"Measure"` projection type (not `"Column"`):
      ```json
      "Y": {
        "projections": [
@@ -37,16 +37,16 @@ Use this skill when you need to programmatically add or modify visuals in a Powe
            "field": {
              "Measure": {
                "Expression": { "SourceRef": { "Entity": "comidasrapidas" } },
-               "Property": "Promedio Servicio"
+               "Property": "Average Service"
              }
            },
-           "queryRef": "comidasrapidas.Promedio Servicio",
-           "nativeQueryRef": "Promedio Servicio"
+           "queryRef": "comidasrapidas.Average Service",
+           "nativeQueryRef": "Average Service"
          }
        ]
      }
      ```
-   - Las proyecciones de tipo `"Column"` directo sólo se permiten en tablas (`tableEx`) o en el campo `Category`/`Group` de los gráficos.
+   - Direct `"Column"` projections are only allowed in table visuals (`tableEx`) or in the grouping fields (like `Category`, `Group`, or `Legend`) of charts.
 
 ---
 
@@ -64,14 +64,14 @@ Never use legacy, descriptive, or regional names (e.g., `columnStackedChart` or 
   - `"pieChart"` (pie chart)
   - `"donutChart"` (donut chart)
   - `"treemap"` (treemap)
-  - `"funnel"` (embudo / funnel chart)
+  - `"funnel"` (funnel chart)
 * **Summaries & Tables:**
   - `"table"` (flat data table)
   - `"matrix"` (matrix / pivot table)
 * **KPIs & Metrics:**
   - `"card"` (single value KPI card)
   - `"multiRowCard"` (multi-row card visual)
-  - `"gauge"` (radial gauge / medidor)
+  - `"gauge"` (radial gauge)
 * **Advanced:**
   - `"scatterChart"` (scatter / bubble plot)
   - `"slicer"` (slicer controls)
@@ -81,7 +81,7 @@ Never use legacy, descriptive, or regional names (e.g., `columnStackedChart` or 
 ## 2. Directory Structure for Visuals (PBIR 2.0.0+ / page 2.x.x)
 In modern PBIR reports, visual files **must not** be placed directly in the page folder. They must be organized inside a `visuals/` subfolder, where each visual is its own directory containing a `visual.json` file:
 ```
-{proyecto}.Report/
+{project}.Report/
   definition/
     pages/
       {page-guid}/
@@ -140,20 +140,21 @@ To set visual titles programmatically in `visualContainer` format:
 
 ---
 
-## 5. TMDL Measure & Partition Rules
-When appending or modifying measures in a local `.tmdl` file:
+## 5. TMDL Model & Measure Rules
+* **discourageImplicitMeasures Setting (CRITICAL):** If the model defines any Calculation Group (`calculationGroup`), you **MUST** set the property `discourageImplicitMeasures: true` under `model Model` in `model.tmdl`. Failure to do so will result in a load crash in Power BI Desktop.
+* **Avoid isKey on Dimensions (CRITICAL):** Do not add `isKey: true` to primary key columns of standard import tables (like date or dimension tables). It can cause *"a cyclic reference was found during evaluation"* errors in Power Query. Use model-level relationships to map the keys.
 * **Duplicate Prevention:** Check if the measure name already exists in the file to avoid compiling duplicates.
 * **Double-Quoting Format Strings:** If `formatString` contains spaces, currencies, or symbols, **always** enclose it in double quotes:
   - `formatString: "$#,##0"` (Correct)
   - `formatString: $#,##0` (Incorrect - will crash Power BI on open)
-* **Partition Preservation (CRÍTICO):** **NEVER** modify or delete the `partition {tabla} = m` block or the `annotation PBI_ResultType = Table` block located at the bottom of the `.tmdl` file. Deleting the partition block will cause a fatal load crash in Power BI Desktop with the error: `"Todas las tablas deben contener al menos una partición con la propiedad Full DataView"`. Any automated regex or parsing scripts to wipe/add measures must leave the partition block untouched.
+* **Partition Preservation (CRITICAL):** **NEVER** modify or delete the `partition {table} = m` block or the `annotation PBI_ResultType = Table` block located at the bottom of the `.tmdl` file. Deleting the partition block will cause a fatal load crash in Power BI Desktop with the error: `"Todas las tablas deben contener al menos una partición con la propiedad Full DataView"`. Any automated regex or parsing scripts to wipe/add measures must leave the partition block untouched.
 
 ---
 
-## 6. Environment, Schema & Workflow Rules (CRÍTICO)
-
+## 6. Environment, Schema & Workflow Rules (CRITICAL)
 * **Root Git Repositories:** Ensure no `.git` folder exists in `C:\` or `D:\` roots. This causes Power BI's automatic Git integration to try to write a `.gitignore` to the root drive, triggering an access permission crash.
-* **Close Power BI Before Edits (FLUJO DE TRABAJO CRÍTICO):** You **MUST** run `taskkill /IM PBIDesktop.exe /F` **BEFORE** making any changes to `.Report` or `.SemanticModel` files. If Power BI Desktop is open, it holds the files in memory and will completely overwrite the directory on save or close, wiping out your generated pages and visuals.
+* **Close Power BI Before Edits (CRITICAL WORKFLOW):** You **MUST** run `taskkill /IM PBIDesktop.exe /F` **BEFORE** making any changes to `.Report` or `.SemanticModel` files (TMDL/PBIR). If Power BI Desktop is open, it holds the files in memory and will completely overwrite the directory on save or close, wiping out your generated pages and visuals.
+* **Clear Schema Cache (CRITICAL):** When performing a major schema refactoring, you **MUST** delete the `.SemanticModel/.pbi/cache.abf` file while Power BI Desktop is closed. This prevents conflicting cached schema evaluation loops.
 * **Valid JSON Keys (No "size", no "config" on root):** In modern `visualContainer` files, never write a `"size"`, `"config"`, or `"filters"` property on the root object of `visual.json`. Width and height must reside strictly inside `"position"`:
   ```json
   "position": {
@@ -166,5 +167,4 @@ When appending or modifying measures in a local `.tmdl` file:
   }
   ```
 * **Mandatory Projection Keys:** Every field projection inside the `"projections": [...]` array must contain `"queryRef"` and `"nativeQueryRef"` as string values. Failing to include these strings will cause a report load crash.
-* **Page Folder Names:** Page folders under `pages/` must be named using 20-character lowercase hexadecimal strings (e.g. `3fc9a277713051a16381` or GUIDs). Do not use descriptive names like `page_resumen`.
-
+* **Page Folder Names:** Page folders under `pages/` must be named using 20-character lowercase hexadecimal strings or GUIDs. Do not use descriptive names.

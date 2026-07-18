@@ -104,12 +104,12 @@ mcp_servers:
 
 ## ⚠️ GOLDEN RULES FOR HUMAN AND AI AGENTS (PBIR 2.0.0+ / TMDL)
 
-When creating or modifying Power BI report pages programmatically, you must follow these rules strictly. Failure to do so will result in **empty visual placeholders** or **report corruption**.
+When creating or modifying Power BI report pages or semantic models programmatically, you must follow these rules strictly. Failure to do so will result in **empty visual placeholders**, **evaluation loops**, or **report loading crashes**.
 
 ### 1. Folder Structure for Visuals (PBIR 2.0.0+)
 In modern Power BI projects, visual files **must not** be placed directly in the page folder. They must be organized inside a `visuals/` subfolder, where each visual is its own directory containing a `visual.json` file:
 ```
-{proyecto}.Report/
+{project}.Report/
   definition/
     pages/
       {page-guid}/
@@ -126,7 +126,7 @@ Example visual configuration (`visual.json`):
 ```json
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.5.0/schema.json",
-  "name": "treemap-servicio",
+  "name": "treemap-service",
   "position": { "x": 20, "y": 20, "z": 0, "width": 610, "height": 310, "tabOrder": 0 },
   "visual": {
     "visualType": "treemap",
@@ -169,7 +169,7 @@ Example visual configuration (`visual.json`):
         {
           "properties": {
             "show": { "expr": { "Literal": { "Value": "true" } } },
-            "text": { "expr": { "Literal": { "Value": "'Servicio por NSE'" } } }
+            "text": { "expr": { "Literal": { "Value": "'Service by NSE'" } } }
           }
         }
       ]
@@ -178,18 +178,27 @@ Example visual configuration (`visual.json`):
 }
 ```
 
-### 3. Column vs Measure Rule (CRÍTICO)
-- **Bar/Column/Line/Funnel/Pie/Donut Charts** and **Treemaps** **DO NOT** accept direct columns (`"Column"`) on their Y-axis/Values axis. Doing so will result in an **empty visual** showing the "Select or drag fields" warning.
+### 3. Column vs Measure Rule (CRITICAL)
+- **Bar/Column/Line/Combo/Funnel/Pie/Donut Charts** and **Treemaps** **DO NOT** accept direct columns (`"Column"`) on their Y-axis/Values axis. Doing so will result in an **empty visual** showing the "Select or drag fields" warning.
 - **Fix:** You must first define a DAX measure in the table's `.tmdl` file (using the MCP tool `add_measure_to_tmdl`), and reference it as a `"Measure"` projection in the visual JSON.
-- **Table Visuals (`tableEx`):** Direct column references are only allowed in table visual projections (`"Values"` channel).
+- **Table Visuals (`tableEx`):** Direct column references are allowed in table visual projections (`"Values"` channel).
 
 ### 4. Projection Keys by Chart Type
 - **Bar, Column, Line, Combo, Funnel, Pie, Donut:** Use `"Category"` (grouping) and `"Y"` (values/measure).
 - **Treemaps:** Use `"Group"` (grouping) and `"Values"` (measure/size).
 - **Tables (`tableEx`):** Use `"Values"` (array of column projections).
 
-### 5. TMDL Measure Formatting
-When appending measures to TMDL files:
-- Double quote the `formatString` if it contains spaces or symbols (e.g., `formatString: "0.00"` or `formatString: "$#,##0"`). Unquoted strings with symbols will crash Power BI.
-- Prevent duplicate measures by scanning the TMDL file before inserting.
-- Always close Power BI Desktop (`taskkill /IM PBIDesktop.exe /F`) before editing.
+### 5. TMDL Model Rules (CRITICAL FOR CALCULATION GROUPS)
+- **discourageImplicitMeasures Setting:** If you create any Calculation Group (`calculationGroup`) in your model, you **MUST** add `discourageImplicitMeasures: true` under the `model Model` block in `model.tmdl`. If you omit this, Power BI Desktop will fail to load with a Frown crash indicating that implicit measures must be discouraged.
+- **Avoid isKey Property on Dimensions:** Never add `isKey: true` to primary key columns in standard import dimensions (like date or category dimensions). Setting `isKey: true` in TMDL can trigger a *"cyclic reference was found during evaluation"* error in Power Query. Keep the column definition simple and let the model-level relationships handle cardinality.
+- **Double-Quoting Format Strings:** If `formatString` contains spaces, currencies, or symbols, **always** enclose it in double quotes: `formatString: "$#,##0"` (Correct). Unquoted strings with symbols will crash Power BI.
+- **Prevent duplicates:** Scan the `.tmdl` file before inserting any measure to avoid compiling duplicate names.
+
+### 6. Workflow & Cache Rules (CRITICAL)
+- **Close Power BI Before Edits:** You **MUST** run `taskkill /IM PBIDesktop.exe /F` **BEFORE** making any changes to `.Report` or `.SemanticModel` files (TMDL/PBIR). If Power BI Desktop is open, it holds the files in memory and will overwrite any local disk changes upon close or save.
+- **Clear Schema Cache:** If you perform a major schema refactoring (e.g. splitting a flat table into a Star Schema), you **MUST** delete the local database cache file `.SemanticModel/.pbi/cache.abf`. If you leave it, Power BI Desktop will load conflicting cached metadata and trigger cyclic evaluation or dependency loop errors.
+- **Root Git Repositories:** Ensure no `.git` folder exists in `C:\` or `D:\` roots. This causes Power BI's automatic Git integration to try to write a `.gitignore` to the root drive, triggering an access permission crash.
+- **Valid JSON Keys:** In `visual.json`, never write `"size"`, `"config"`, or `"filters"` on the root object. All dimensions must reside strictly inside `"position"`.
+- **Mandatory Keys:** Every field projection must contain `"queryRef"` and `"nativeQueryRef"`.
+- **Page Folder Names:** Page folders under `pages/` must be named using 20-character lowercase hexadecimal strings or GUIDs. Do not use descriptive folder names.
+
