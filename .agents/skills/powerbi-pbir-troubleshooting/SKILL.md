@@ -81,13 +81,18 @@ Treemaps use the theme's `dataColors` palette across all categories automaticall
 | `"1"` | Horizontal tiles | ONLY with `responsive: false` AND height ≥ 80 px |
 | `"2"` | Dropdown (collapsible) | **ALWAYS use for compact full-width filter bars** |
 
-**Fix — NEVER use `responsive: true` on slicers with height ≤ 80 px. ALWAYS use `orientation: "2"` (dropdown) for compact filter bar slicers.** Additionally:
-- Set `general.responsive: false` — required for orientation to be respected
-- Set `header.show: false` — prevents the column name from appearing as an internal label inside the slicer
-- Set `visualContainerObjects.title.show: false` — suppress the container title when surrounding context makes it redundant
-- Set `items.background` border color to the theme accent — provides visual feedback that the control is interactive
+**Fix for Horizontal Button/Tile Slicers (`orientation: "1"`):**
+To render interactive horizontal filter buttons (like the Amazon category button filter bar):
+- Set `orientation: "1"` in `items`
+- Set `general.responsive: false` (CRITICAL: if true, Power BI forces collapse into vertical list)
+- Ensure container height is **at least `85px`** so tiles render fully without text clipping
+- Set `header.show: false` and `visualContainerObjects.title.show: false` to maximize button space
+- Set `items.selectedColor` to a glowing accent (e.g. `#FF9E2C` / Terracota) for active selection visual feedback
 
-**Correct template — compact dropdown slicer for filter bars:**
+**Fix for Compact Dropdown Slicers (`orientation: "2"`):**
+If vertical space is strictly limited (height ≤ 55px), use `orientation: "2"` dropdown instead.
+
+**Correct template — Horizontal Tile / Button Slicer:**
 ```json
 "objects": {
   "general": [{
@@ -102,10 +107,10 @@ Treemaps use the theme's `dataColors` palette across all categories automaticall
   }],
   "items": [{
     "properties": {
+      "orientation": { "expr": { "Literal": { "Value": "1" } } },
       "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#F8FAFC'" } } } } },
-      "background": { "solid": { "color": { "expr": { "Literal": { "Value": "'#464858'" } } } } },
-      "selectedColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#D99B7F'" } } } } },
-      "orientation": { "expr": { "Literal": { "Value": "2" } } },
+      "background": { "solid": { "color": { "expr": { "Literal": { "Value": "'#1A2A36'" } } } } },
+      "selectedColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#FF9E2C'" } } } } },
       "singleSelect": { "expr": { "Literal": { "Value": "false" } } }
     }
   }]
