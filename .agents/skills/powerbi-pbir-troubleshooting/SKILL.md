@@ -90,7 +90,10 @@ To render interactive horizontal filter buttons (like the Amazon category button
 - Set `items.selectedColor` to a glowing accent (e.g. `#FF9E2C` / Terracota) for active selection visual feedback
 
 **Fix for Compact Dropdown Slicers (`orientation: "2"`):**
-If vertical space is strictly limited (height ≤ 55px), use `orientation: "2"` dropdown instead.
+If vertical space is strictly limited (height ≤ 55px), **ALWAYS use `orientation: "2"` (dropdown)**. Attempting to use `orientation: "1"` (horizontal tiles) in narrow vertical spaces causes Power BI to render checkboxes vertically, leading to extreme visual overlapping with KPI cards below.
+
+> [!WARNING]
+> **Layout Overlap Trap:** If you switch a slicer from `orientation: "2"` to `orientation: "1"` without expanding the canvas height and pushing down all lower visual blocks (`y` coordinates), the slicer will visually bleed over and obscure the KPI cards below it. Always use `orientation: "2"` dropdowns for top filter bars unless the entire canvas grid is explicitly re-architected with vertical gaps ≥ 35px.
 
 **Correct template — Horizontal Tile / Button Slicer:**
 ```json
