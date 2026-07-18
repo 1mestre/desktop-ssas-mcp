@@ -337,4 +337,22 @@ if x_overlap and y_overlap:
     raise ValueError("Visual overlap detected!")
 ```
 
+---
+
+## 9. WCAG Contrast Ratios & Executive Design Architecture (Visual Harmony)
+To ensure reports look clean, high-contrast, professional, and visually unified across all Power BI themes:
+
+### 1. WCAG 2.1 AA Contrast Ratio Standard:
+- **Contrast Formula:** $CR = \frac{L_1 + 0.05}{L_2 + 0.05} \ge 4.5:1$ for body/title text and $\ge 3.0:1$ for large text/KPI callout numbers.
+- **NEVER** place dark text (e.g. black `#111827` or dark purple) on dark backgrounds (e.g. purple, dark navy, or black).
+- **NEVER** place white text (`#FFFFFF`) on white or light grey backgrounds.
+
+### 2. Container Homogeneity Principle:
+- **Unified Visual Containers:** All visual containers on a dashboard page (KPI Cards, Charts, Tables, Slicers) MUST share a single, homogeneous background container specification (e.g. Pure White `#FFFFFF` background with `0%` transparency and subtle `1px` border `#E5E7EB`).
+- **Avoid "Patchwork" Designs:** Do not mix solid dark purple cards next to white donut charts and black KPI boxes. A patchwork of mismatched container backgrounds creates visual clutter and looks amateurish.
+
+### 3. Data Accentuation vs Container Neutrality:
+- Use colors purposefully for **data accentuation** (e.g. KPI callout value numbers, chart bars, line series, donut slices), while maintaining clean, neutral, high-contrast framing for containers and titles.
+
+
 
